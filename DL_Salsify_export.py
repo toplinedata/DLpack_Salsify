@@ -79,4 +79,4 @@ time.sleep(60)
 if exists('Salsify export_'+date_label+'.xlsx'):
     os.remove('Salsify export_'+date_label+'.xlsx')
 os.rename('export.xlsx', 'Salsify export_'+date_label+'.xlsx')
-driver.quit()
+driver.quit() 
