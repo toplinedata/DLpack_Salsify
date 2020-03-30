@@ -85,19 +85,18 @@ for i in range(5):
             for i in range(2,len(assign_no)+1):
                 if driver.find_element_by_css_selector(main_assign+'div:nth-child('+str(i)+') > div > label > div > div:nth-child(2)').text == assign:
                     driver.find_element_by_css_selector(main_assign+'div:nth-child('+str(i)+') > div > label > div').click()
-            
-            time.sleep(10)
-            # Download Filtered Activity
-            LoadingChecker = (By.CSS_SELECTOR, '#content > div._content-flow_dvjdnj > div:nth-child(3) > div:nth-child(2) > div:nth-child(1) > button') # Actions
-            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker)) 
-            driver.find_element_by_css_selector('#content > div._content-flow_dvjdnj > div:nth-child(3) > div:nth-child(2) > div:nth-child(1) > button').click()
-            
-            LoadingChecker = (By.CSS_SELECTOR, '#content > div._content-flow_dvjdnj > div:nth-child(3) > div:nth-child(2) > div:nth-child(2) > div > div > a:nth-child(5)') # Download Filtered Activity
-            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-            driver.find_element_by_css_selector('#content > div._content-flow_dvjdnj > div:nth-child(3) > div:nth-child(2) > div:nth-child(2) > div > div > a:nth-child(5)').click()
-            time.sleep(60)
-            driver.get(datecheck_link) # Filter resetup
-                                                
+                    time.sleep(10)
+                    # Download Filtered Activity
+                    LoadingChecker = (By.CSS_SELECTOR, '#content > div._content-flow_dvjdnj > div:nth-child(3) > div:nth-child(2) > div:nth-child(1) > button') # Actions
+                    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker)) 
+                    driver.find_element_by_css_selector('#content > div._content-flow_dvjdnj > div:nth-child(3) > div:nth-child(2) > div:nth-child(1) > button').click()
+                    
+                    LoadingChecker = (By.CSS_SELECTOR, '#content > div._content-flow_dvjdnj > div:nth-child(3) > div:nth-child(2) > div:nth-child(2) > div > div > a:nth-child(5)') # Download Filtered Activity
+                    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+                    driver.find_element_by_css_selector('#content > div._content-flow_dvjdnj > div:nth-child(3) > div:nth-child(2) > div:nth-child(2) > div > div > a:nth-child(5)').click()
+                    time.sleep(60)
+                    driver.get(datecheck_link) # Filter resetup
+                                                        
             if os.path.exists(Download_dir+'tasks.csv'):
                 shutil.move(Download_dir+'tasks.csv', Download_dir+ASSIGNEE[assign]+' tasks_'+date_label+'.csv')
 
