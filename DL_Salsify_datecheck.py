@@ -21,7 +21,7 @@ try:
     os.chdir('C:\\Users\\User\\Desktop\\0047Automate_Script\\DLpack_Salsify\\DateCheck\\')
 except:
     #0047
-    os.chdir('N:\\E Commerce\\Public Share\\Salsify Assortment\\')
+    os.chdir('C:\\Users\\raymond.hung\\Documents\\Automate_Script\\DLpack_Salsify\\')
 
 #storage Directory
 if 'Desktop\\0047Automate_Script' in os.getcwd():
@@ -31,7 +31,7 @@ if 'Desktop\\0047Automate_Script' in os.getcwd():
 else:      
     driver_path = 'C:\\Users\\raymond.hung\\chrome\\chromedriver.exe'
     work_dir = 'C:\\Users\\raymond.hung\\Documents\\Automate_Script\\DLpack_Salsify\\'
-    Download_dir = 'N:\\E Commerce\\Public Share\\Salsify Assortment\\'
+    Download_dir = 'C:\\Users\\raymond.hung\\Documents\\Automate_Script\\DLpack_Salsify\\temp_DL\\'
 
 
 # Account and Password
@@ -46,62 +46,93 @@ prefs = {'download.default_directory' : Download_dir}
 options.add_experimental_option("prefs", prefs)
 driver = webdriver.Chrome(driver_path,chrome_options=options)
 
-for i in range(5):
-    try:
-        # Supplier Oasis website turn into login page
-        Supplier_Oasis = 'https://app.salsify.com/users/sign_in'
-        driver.get(Supplier_Oasis)
-        LoadingChecker = (By.CSS_SELECTOR, 'body > div > form > button') # Allow all cookies
-        WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_css_selector('body > div > form > button').click()
+# Supplier Oasis website turn into login page
+Supplier_Oasis = 'https://app.salsify.com/users/sign_in'
+driver.get(Supplier_Oasis)
+LoadingChecker = (By.CSS_SELECTOR, 'body > div > form > button') # Allow all cookies
+WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+driver.find_element_by_css_selector('body > div > form > button').click()
         
-        LoadingChecker = (By.CSS_SELECTOR, '.login-button') # Log In
-        WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-        # Input username and password and login
-        driver.find_element_by_id('user_email').send_keys(username)
-        driver.find_element_by_id('user_password').send_keys(password)
-        driver.find_element_by_css_selector('.login-button').click()
+LoadingChecker = (By.CSS_SELECTOR, '.login-button') # Log In
+WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+# Input username and password and login
+driver.find_element_by_id('user_email').send_keys(username)
+driver.find_element_by_id('user_password').send_keys(password)
+driver.find_element_by_css_selector('.login-button').click()
         
-        # Transfer to Tasks Page 
-        LoadingChecker = (By.CSS_SELECTOR, 'body > div.ember-view > div > nav > div.ember-view > div > div > div') # More
-        WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-        datecheck_link ='https://app.salsify.com/app/orgs/s-69d82988-277e-4ffd-ab76-b3b97ca474b8/content-flow/tasks?all=true'
-        driver.get(datecheck_link)
-               
-        # Assignee Filter
-        ASSIGNEE = {
-                    'Danny Hsu' : 'Marketing Content'
-                    , 'Lisa Majerchin' : 'Digital Asset'
-                    , 'Claudia' : 'Product Info'
-                    , 'Dot com AE' : 'AE Final Review'
-                    }
+# Transfer to Tasks Page 
+LoadingChecker = (By.CSS_SELECTOR, 'body > div.ember-view > div > nav > div.ember-view > div > div > div') # More
+WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+datecheck_link ='https://app.salsify.com/app/orgs/s-69d82988-277e-4ffd-ab76-b3b97ca474b8/content-flow/tasks?all=true'
+driver.get(datecheck_link)
 
+# Assignee Filter
+ASSIGNEE = {
+        'Danny Hsu' : 'Marketing Content'
+        , 'Lisa Majerchin' : 'Digital Asset'
+        , 'Claudia' : 'Product Info'
+        , 'Dot com AE' : 'AE Final Review'
+        }
+
+for _ in range(3):
+    if os.path.exists(Download_dir+'tasks.csv'):
+        os.remove(Download_dir+'tasks.csv')
+    try:
         for assign in ASSIGNEE:
             main_assign = '#content > div._content-flow_dvjdnj > div._content_ffkuhn > div._sidebar_ffkuhn > div > div:nth-child(1) > '
             LoadingChecker = (By.CSS_SELECTOR, main_assign+'div:nth-child(1) > div > div:nth-child(2)') # ASSIGNEE
             WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
             
+            # Open other assignee options
             assign_no = driver.find_elements_by_css_selector(main_assign+'div')
+            for i in range(2,len(assign_no)+1):
+                if driver.find_element_by_css_selector(main_assign+'div:nth-child('+str(i)+') > div > label > div > div:nth-child(2)').text == 'Administrators':
+                    driver.find_element_by_css_selector(main_assign+'div:nth-child('+str(i)+') > div > label > div').click()
+                    time.sleep(20)
+                
+            # Cancel Administrators
+            assign_no = driver.find_elements_by_css_selector(main_assign+'div')
+            for i in range(2,len(assign_no)+1):
+                if driver.find_element_by_css_selector(main_assign+'div:nth-child('+str(i)+') > div > label > div > div:nth-child(2)').text == 'Administrators':
+                    driver.find_element_by_css_selector(main_assign+'div:nth-child('+str(i)+') > div > label > div').click()
+                    time.sleep(20)
+            
+            # Confirm download files No.
+            file_count = 0
+            for assign_checker in ASSIGNEE:
+                for i in range(2,len(assign_no)+1):
+                    if driver.find_element_by_css_selector(main_assign+'div:nth-child('+str(i)+') > div > label > div > div:nth-child(2)').text == assign_checker:
+                        file_count+=1
+            
+            # Choose Assignee
             for i in range(2,len(assign_no)+1):
                 if driver.find_element_by_css_selector(main_assign+'div:nth-child('+str(i)+') > div > label > div > div:nth-child(2)').text == assign:
                     driver.find_element_by_css_selector(main_assign+'div:nth-child('+str(i)+') > div > label > div').click()
-                    time.sleep(10)
-                    # Download Filtered Activity
-                    LoadingChecker = (By.CSS_SELECTOR, '#content > div._content-flow_dvjdnj > div:nth-child(3) > div:nth-child(2) > div:nth-child(1) > button') # Actions
+                    time.sleep(20)
+                    
+                    # Click Actions
+                    LoadingChecker = (By.CSS_SELECTOR, '#content > div._content-flow_dvjdnj > div:nth-child(3) > div:nth-child(2) > div:nth-child(1) > button')
                     WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker)) 
                     driver.find_element_by_css_selector('#content > div._content-flow_dvjdnj > div:nth-child(3) > div:nth-child(2) > div:nth-child(1) > button').click()
-                    
-                    LoadingChecker = (By.CSS_SELECTOR, '#content > div._content-flow_dvjdnj > div:nth-child(3) > div:nth-child(2) > div:nth-child(2) > div > div > a:nth-child(5)') # Download Filtered Activity
+                    # Click Download Filtered Activity
+                    LoadingChecker = (By.CSS_SELECTOR, '#content > div._content-flow_dvjdnj > div:nth-child(3) > div:nth-child(2) > div:nth-child(2) > div > div > a:nth-child(5)')
                     WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
                     driver.find_element_by_css_selector('#content > div._content-flow_dvjdnj > div:nth-child(3) > div:nth-child(2) > div:nth-child(2) > div > div > a:nth-child(5)').click()
                     time.sleep(60)
-                    driver.get(datecheck_link) # Filter resetup
-                                                        
+            
+            # Download Page resetup
+            driver.get(datecheck_link)
+                                                
+            # Download files rename
             if os.path.exists(Download_dir+'tasks.csv'):
                 shutil.move(Download_dir+'tasks.csv', Download_dir+ASSIGNEE[assign]+' tasks_'+date_label+'.csv')
 
-        if len(os.listdir(Download_dir)) >= len(ASSIGNEE): # Confirm download file numbers
+        # Confirm download file numbers
+        if len(os.listdir(Download_dir)) >= file_count: 
             break
+        else:
+            print("download files not complete")
+            driver.get(datecheck_link)
         
     except Exception as e:
         print(e)
@@ -110,7 +141,7 @@ for i in range(5):
 
 driver.quit()
 
-# Define Send Mail function
+# sendmail0047
 def sendreport(mailinfo, infoSerial, AttachFile):
     import smtplib
     from email.mime.multipart import MIMEMultipart
@@ -121,13 +152,12 @@ def sendreport(mailinfo, infoSerial, AttachFile):
     # import os
 
     # pwd = os.path.abspath('C:\\Users\\User\\Desktop\\0047Automate_Script\\DLpack_Salsify\\')
-    pwd = Download_dir
     info = pandas.read_csv(mailinfo)
-    MyMail = pandas.read_csv(pwd + "\\UIDandPW.csv").ID[1]
-    MyMailPW = pandas.read_csv(pwd + "\\UIDandPW.csv").PW[1]
+    MyMail = pandas.read_csv("UIDandPW.csv").ID[1]
+    MyMailPW = pandas.read_csv("UIDandPW.csv").PW[1]
     mailto = info.To[infoSerial].split("/")
     Cc = info.cc[infoSerial].split("/")
-
+    
     emailMsg = MIMEMultipart('alternative')
     emailMsg['Subject'] = info.Subject[infoSerial]
     emailMsg['From'] = MyMail
@@ -137,7 +167,7 @@ def sendreport(mailinfo, infoSerial, AttachFile):
     Attachs=AttachFile.split("|")
     for files in Attachs:
         att = MIMEBase('application', "octet-stream")
-        att.set_payload(open(files, "rb").read())
+        att.set_payload(open(Download_dir + files, "rb").read())
         encoders.encode_base64(att)
         att.add_header('Content-Disposition', 'attachment', filename=files)
         emailMsg.attach(att)
@@ -160,4 +190,7 @@ for file in os.listdir(Download_dir):
         count+=1
     else:
         filelist+=file
-sendreport(work_dir+'mailinfo.csv',0,filelist)
+sendreport('mailinfo.csv',1,filelist)
+
+for file in os.listdir(Download_dir):
+    os.remove(Download_dir+file)
